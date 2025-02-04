@@ -1,9 +1,10 @@
 import { Meteor } from "meteor/meteor";
 import SimpleSchema from "simpl-schema";
-import { RegExp } from "simpl-schema";
+import { Mongo } from "meteor/mongo";
+export const Contacts = new Mongo.Collection("contacts");
 
 Meteor.methods({
-  submitContactForm({ firstName, lastName, email, message }) {
+  async submitContactForm({ firstName, lastName, email, message }) {
     // Define validation schema
     const contactFormSchema = new SimpleSchema({
       firstName: { type: String, min: 2, max: 50 },
@@ -29,7 +30,26 @@ Meteor.methods({
       message,
     });
 
+    try {
+      await Contacts.insertAsync({
+        firstName,
+        lastName,
+        email,
+        message,
+        createdAt: new Date(),
+      });
+    } catch (dbError) {
+      console.error("Database insertion failed:", dbError);
+      throw new Meteor.Error(
+        "database-error",
+        "Failed to save contact form. Please try again later."
+      );
+    }
+
     return { status: "success", message: "Form submitted successfully" };
+  },
+  getAllContacts() {
+    return Contacts.find({}, { sort: { createdAt: -1 } }).fetch();
   },
 });
 
