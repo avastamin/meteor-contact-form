@@ -1,20 +1,25 @@
 import { Meteor } from "meteor/meteor";
-import { check } from "meteor/check";
+import SimpleSchema from "simpl-schema";
+import { RegExp } from "simpl-schema";
 
 Meteor.methods({
   submitContactForm({ firstName, lastName, email, message }) {
-    check(firstName, String);
-    check(lastName, String);
-    check(email, String);
-    check(message, String);
+    // Define validation schema
+    const contactFormSchema = new SimpleSchema({
+      firstName: { type: String, min: 2, max: 50 },
+      lastName: { type: String, min: 2, max: 50 },
+      email: {
+        type: String,
+        regEx: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+      },
+      message: { type: String, min: 10, max: 1000 },
+    });
 
-    // Email validation regex
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    if (!emailRegex.test(email)) {
-      throw new Meteor.Error(
-        "invalid-email",
-        "Please provide a valid email address"
-      );
+    // Validate incoming data
+    try {
+      contactFormSchema.validate({ firstName, lastName, email, message });
+    } catch (validationError) {
+      throw new Meteor.Error("validation-error", validationError.message);
     }
 
     console.log("New contact form submission:", {

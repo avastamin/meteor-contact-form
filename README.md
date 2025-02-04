@@ -11,6 +11,7 @@ This is a simple **Contact Form** built using **MeteorJS, React, and Bootstrap**
 ✅ **Bootstrap** for styling  
 ✅ **Meteor Methods** to handle form submission  
 ✅ **Client-Side Validation** using React Hooks  
+✅ **Server-Side Validation** using Meteor Methods  
 ✅ **Success/Error Alerts** on form submission
 
 ---
